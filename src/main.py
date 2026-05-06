@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
 
 spark = (
     SparkSession.builder
@@ -47,29 +48,32 @@ worldometer_df = spark.read.csv(
     inferSchema=True
 )
 
+missing_count = covid_clean_df.filter(
+    col("Province/State").isNull()
+).count()
 
-print("\nFULL GROUPED DATASET")
-full_grouped_df.printSchema()
-print("Row Count:", full_grouped_df.count())
+print("Null Province/State Rows:", missing_count)
 
-print("\nCOVID CLEAN COMPLETE DATASET")
-covid_clean_df.printSchema()
-print("Row Count:", covid_clean_df.count())
+null_report_df = covid_clean_df.filter(
+    col("Province/State").isNull()
+)
 
-print("\nCOUNTRY WISE LATEST DATASET")
-country_latest_df.printSchema()
-print("Row Count:", country_latest_df.count())
+country_null_report = (
+    null_report_df
+    .groupBy("Country/Region")
+    .count()
+    .orderBy("count", ascending=False)
+)
 
-print("\nDAY WISE DATASET")
-day_wise_df.printSchema()
-print("Row Count:", day_wise_df.count())
+print("\nCountry-wise Null Province/State Count")
+country_null_report.show(20)
 
-print("\nUSA COUNTY DATASET")
-usa_county_df.printSchema()
-print("Row Count:", usa_county_df.count())
+covid_clean_df = covid_clean_df.fillna(
+    {"Province/State": "Unknown"}
+)
 
-print("\nWORLDOMETER DATASET")
-worldometer_df.printSchema()
-print("Row Count:", worldometer_df.count())
+remaining_nulls = covid_clean_df.filter(
+    col("Province/State").isNull()
+).count()
 
-spark.stop()
+print("\nRemaining Null Province/State:", remaining_nulls)
