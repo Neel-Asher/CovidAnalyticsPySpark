@@ -1,4 +1,4 @@
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, sum as sum_
 
 class CountryAnalysis:
 
@@ -16,4 +16,17 @@ class CountryAnalysis:
             df.select("Country/Region", "Deaths / 100 Cases")
             .orderBy(col("Deaths / 100 Cases").desc())
             .limit(limit_count)
+        )
+    
+    @staticmethod
+    def get_who_region_metrics(df):
+
+        return (
+            df.groupBy("WHO Region")
+            .agg(
+                sum_("Confirmed").alias("Total Confirmed"),
+                sum_("Deaths").alias("Total Deaths"),
+                sum_("Recovered").alias("Total Recovered")
+            )
+            .orderBy(col("Total Confirmed").desc())
         )

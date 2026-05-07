@@ -53,3 +53,8 @@ top_death_rate_df = CountryAnalysis.get_top_death_rate_countries(country_latest_
 print("\nTop 10 Countries by Death Rate (Deaths / 100 Cases)")
 top_death_rate_df.show()
 Plotter.plot_top_death_rate_countries(top_death_rate_df)    
+
+who_region_df = CountryAnalysis.get_who_region_metrics(full_grouped_df)
+print("\nWHO Region-wise Total Metrics")
+who_region_df.show()
+Plotter.plot_who_region_metrics(who_region_df)
