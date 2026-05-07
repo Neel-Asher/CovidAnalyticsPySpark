@@ -173,3 +173,27 @@ class CountryAnalysis:
         )
 
         return result
+    
+    @staticmethod
+    def compute_recovery_rate(df):
+
+        cleaned = df.filter(
+            (col("Confirmed").isNotNull()) &
+            (col("Recovered").isNotNull()) &
+            (col("Confirmed") > 0)
+        )
+
+        result = cleaned.withColumn(
+            "recovery_rate",
+            (col("Recovered") / col("Confirmed")) * 100
+        )
+
+        return result
+
+    @staticmethod
+    def get_recovery_extremes(df, top_n=10):
+
+        best = df.orderBy(col("recovery_rate").desc()).limit(top_n)
+        worst = df.orderBy(col("recovery_rate").asc()).limit(top_n)
+
+        return best, worst

@@ -133,3 +133,21 @@ class Plotter:
         plt.close()
 
         print("Saved plot to: output/geo_clusters.png")
+    
+    @staticmethod
+    def plot_recovery_rates(df, title, filename):
+
+        pdf = df.toPandas()
+
+        plt.figure(figsize=(12,6))
+        plt.bar(pdf["Country/Region"], pdf["recovery_rate"])
+
+        plt.xticks(rotation=45)
+        plt.title(title)
+        plt.ylabel("Recovery Rate (%)")
+
+        plt.tight_layout()
+        plt.savefig(f"output/{filename}.png")
+        plt.close()
+
+        print(f"Saved plot to: output/{filename}.png")
