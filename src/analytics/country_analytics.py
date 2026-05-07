@@ -1,4 +1,4 @@
-from pyspark.sql.functions import col, sum as sum_, lag, when
+from pyspark.sql.functions import col, sum as sum_, lag, when, abs as abs_
 from pyspark.sql.window import Window
 import matplotlib.pyplot as plt
 import os
@@ -64,9 +64,7 @@ class CountryAnalysis:
     @staticmethod
     def plot_country_trend(df, country_name):
 
-        country_df = df.filter(
-            col("Country/Region") == country_name
-        ).orderBy("Date")
+        country_df = df.filter(col("Country/Region") == country_name).orderBy("Date")
 
         data = country_df.collect()
 
@@ -97,3 +95,35 @@ class CountryAnalysis:
         plt.close()
 
         print(f"Saved plot to: {output_path}")
+
+    @staticmethod
+    def compare_latest_sources(country_latest_df, worldometer_df):
+
+        df1 = country_latest_df.select(
+            col("Country/Region"),
+            col("Confirmed").alias("Confirmed_cw"),
+            col("Deaths").alias("Deaths_cw"),
+            col("Recovered").alias("Recovered_cw")
+        )
+
+        df2 = worldometer_df.select(
+            col("Country/Region"),
+            col("TotalCases").alias("Confirmed_wm"),
+            col("TotalDeaths").alias("Deaths_wm"),
+            col("TotalRecovered").alias("Recovered_wm")
+        )
+
+        joined = df1.join(df2, on="Country/Region", how="inner")
+
+        result = joined.withColumn(
+            "confirmed_diff",
+            abs_(col("Confirmed_cw") - col("Confirmed_wm"))
+        ).withColumn(
+            "deaths_diff",
+            abs_(col("Deaths_cw") - col("Deaths_wm"))
+        ).withColumn(
+            "recovered_diff",
+            abs_(col("Recovered_cw") - col("Recovered_wm"))
+        )
+
+        return result
