@@ -1,110 +1,43 @@
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, when, regexp_replace
+from config.spark_session import SparkManager
+from loaders.data_loader import DataLoader
+from transformations.covid_cleaner import CovidCleaner
 
-spark = (
-    SparkSession.builder
-    .appName("COVID PySpark Analytics")
-    .master("local[*]")
-    .getOrCreate()
-)
-
-spark.sparkContext.setLogLevel("ERROR")
-
+spark = SparkManager.create_spark_session()
 raw_data_path = "data/raw/"
-
-def standardize_country(df):
-    return df.withColumn(
-        "Country/Region",
-        when(col("Country/Region") == "US", "USA")
-        .when(col("Country/Region") == "Korea, South", "South Korea")
-        .when(col("Country/Region") == "Russian Federation", "Russia")
-        .when(col("Country/Region") == "Burma", "Myanmar")
-        .otherwise(col("Country/Region"))
-    )
-
-
-full_grouped_df = spark.read.csv(
-    raw_data_path + "full_grouped.csv",
-    header=True,
-    inferSchema=True
-)
-
-covid_clean_df = spark.read.csv(
-    raw_data_path + "covid_19_clean_complete.csv",
-    header=True,
-    inferSchema=True
-)
-
-country_latest_df = spark.read.csv(
-    raw_data_path + "country_wise_latest.csv",
-    header=True,
-    inferSchema=True
-)
-
-day_wise_df = spark.read.csv(
-    raw_data_path + "day_wise.csv",
-    header=True,
-    inferSchema=True
-)
-
-usa_county_df = spark.read.csv(
-    raw_data_path + "usa_county_wise.csv",
-    header=True,
-    inferSchema=True
-)
-
-worldometer_df = spark.read.csv(
-    raw_data_path + "worldometer_data.csv",
-    header=True,
-    inferSchema=True
-)
-
-missing_count = covid_clean_df.filter(
-    col("Province/State").isNull()
-).count()
-
+loader = DataLoader(spark, raw_data_path)
+full_grouped_df = loader.load_csv("full_grouped.csv")
+covid_clean_df = loader.load_csv("covid_19_clean_complete.csv")
+country_latest_df = loader.load_csv("country_wise_latest.csv")
+day_wise_df = loader.load_csv("day_wise.csv")
+usa_county_df = loader.load_csv("usa_county_wise.csv")
+worldometer_df = loader.load_csv("worldometer_data.csv")
+missing_count = CovidCleaner.get_missing_province_count(covid_clean_df)
 print("Null Province/State Rows:", missing_count)
 
-null_report_df = covid_clean_df.filter(
-    col("Province/State").isNull()
-)
-
-country_null_report = (
-    null_report_df
-    .groupBy("Country/Region")
-    .count()
-    .orderBy("count", ascending=False)
-)
-
+country_null_report = CovidCleaner.get_country_null_report(covid_clean_df)
 print("\nCountry-wise Null Province/State Count")
+
 country_null_report.show(20)
-
-covid_clean_df = covid_clean_df.fillna(
-    {"Province/State": "Unknown"}
-)
-
-remaining_nulls = covid_clean_df.filter(
-    col("Province/State").isNull()
-).count()
-
+covid_clean_df = CovidCleaner.fill_missing_province(covid_clean_df)
+remaining_nulls = CovidCleaner.get_missing_province_count(covid_clean_df)
 print("\nRemaining Null Province/State:", remaining_nulls)
 
-full_grouped_df = standardize_country(full_grouped_df)
-country_latest_df = standardize_country(country_latest_df)
-worldometer_df = standardize_country(worldometer_df)
-
-def clean_country_strings(df):
-    return df.withColumn(
-        "Country/Region",
-        regexp_replace(col("Country/Region"), r"^\s+|\s+$", "")
-    )
-
-full_grouped_df = clean_country_strings(full_grouped_df)
-country_latest_df = clean_country_strings(country_latest_df)
-worldometer_df = clean_country_strings(worldometer_df)
-
+full_grouped_df = CovidCleaner.standardize_country_names(full_grouped_df)
+country_latest_df = CovidCleaner.standardize_country_names(country_latest_df)
+worldometer_df = CovidCleaner.standardize_country_names(worldometer_df)
+full_grouped_df = CovidCleaner.clean_country_strings(full_grouped_df)
+country_latest_df = CovidCleaner.clean_country_strings(country_latest_df)
+worldometer_df = CovidCleaner.clean_country_strings(worldometer_df)
+full_grouped_df = CovidCleaner.remove_duplicates(full_grouped_df)
 print("\nUnique Countries - full_grouped_df")
-full_grouped_df.select("Country/Region").distinct().show(20, False)
 
-print("\nUnique Countries - worldometer_df")
-worldometer_df.select("Country/Region").distinct().show(20, False)
+full_grouped_df.select("Country/Region").distinct().show(20, False)
+before_count = CovidCleaner.get_row_count(full_grouped_df)
+print("\nRows Before Removing Duplicates:", before_count)
+duplicate_df = CovidCleaner.get_duplicate_records(full_grouped_df)
+print("\nDuplicate Country-Date Records")
+duplicate_df.show()
+full_grouped_df = CovidCleaner.remove_duplicates(full_grouped_df)
+after_count = CovidCleaner.get_row_count(full_grouped_df)
+print("\nRows After Removing Duplicates:", after_count)
+print("\nTotal Duplicate Rows Removed:",before_count - after_count)
