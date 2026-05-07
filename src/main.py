@@ -4,6 +4,7 @@ from transformations.covid_cleaner import CovidCleaner
 from analytics.country_analytics import CountryAnalysis
 from visualization.plotter import Plotter
 from analytics.global_analytics import GlobalAnalysis
+from analytics.global_death_trend import GlobalDeathTrend
 
 spark = SparkManager.create_spark_session()
 raw_data_path = "data/raw/"
@@ -63,3 +64,8 @@ Plotter.plot_who_region_metrics(who_region_df)
 print("\nDaily Global New Cases Trend")
 daily_trend_df = GlobalAnalysis.get_daily_new_cases_trend(day_wise_df)
 GlobalAnalysis.plot_daily_new_cases(daily_trend_df)
+
+print("\nDaily Global Death Growth Trend")
+death_trend_df = GlobalDeathTrend.compute_death_growth(day_wise_df)
+death_trend_df.show(10)
+GlobalDeathTrend.plot_death_growth(death_trend_df)
