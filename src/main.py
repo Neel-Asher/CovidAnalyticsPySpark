@@ -5,6 +5,7 @@ from analytics.country_analytics import CountryAnalysis
 from visualization.plotter import Plotter
 from analytics.global_analytics import GlobalAnalysis
 from analytics.global_death_trend import GlobalDeathTrend
+from analytics.monthly_analytics import MonthlyAnalysis
 
 spark = SparkManager.create_spark_session()
 raw_data_path = "data/raw/"
@@ -69,3 +70,8 @@ print("\nDaily Global Death Growth Trend")
 death_trend_df = GlobalDeathTrend.compute_death_growth(day_wise_df)
 death_trend_df.show(10)
 GlobalDeathTrend.plot_death_growth(death_trend_df)
+
+print("\nMonthly COVID Case Growth")
+monthly_df = MonthlyAnalysis.get_monthly_cases(full_grouped_df)
+monthly_df.show()
+MonthlyAnalysis.plot_monthly_cases(monthly_df)
