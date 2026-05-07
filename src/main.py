@@ -3,6 +3,7 @@ from loaders.data_loader import DataLoader
 from transformations.covid_cleaner import CovidCleaner
 from analytics.country_analytics import CountryAnalysis
 from visualization.plotter import Plotter
+from analytics.global_analytics import GlobalAnalysis
 
 spark = SparkManager.create_spark_session()
 raw_data_path = "data/raw/"
@@ -58,3 +59,7 @@ who_region_df = CountryAnalysis.get_who_region_metrics(full_grouped_df)
 print("\nWHO Region-wise Total Metrics")
 who_region_df.show()
 Plotter.plot_who_region_metrics(who_region_df)
+
+print("\nDaily Global New Cases Trend")
+daily_trend_df = GlobalAnalysis.get_daily_new_cases_trend(day_wise_df)
+GlobalAnalysis.plot_daily_new_cases(daily_trend_df)
