@@ -7,6 +7,7 @@ from analytics.global_analytics import GlobalAnalysis
 from analytics.global_death_trend import GlobalDeathTrend
 from analytics.monthly_analytics import MonthlyAnalysis
 from analytics.region_analytics import RegionAnalysis
+from pyspark.sql.functions import col
 
 spark = SparkManager.create_spark_session()
 raw_data_path = "data/raw/"
@@ -77,7 +78,12 @@ monthly_df = MonthlyAnalysis.get_monthly_cases(full_grouped_df)
 monthly_df.show()
 MonthlyAnalysis.plot_monthly_cases(monthly_df)
 
-print("\nTASK 11: Top 5 Countries per WHO Region")
+print("\nTop 5 Countries per WHO Region")
 top5_region_df = RegionAnalysis.get_top5_by_region(country_latest_df)
 top5_region_df.show(50, False)
 RegionAnalysis.plot_top5_by_region(top5_region_df)
+
+print("\nCountry-wise Daily Case Increase")
+country_trend_df = CountryAnalysis.compute_daily_increase(full_grouped_df)
+country_trend_df.show(10)
+CountryAnalysis.plot_country_trend(country_trend_df, "USA")
