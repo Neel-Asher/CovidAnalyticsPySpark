@@ -9,6 +9,7 @@ from analytics.monthly_analytics import MonthlyAnalysis
 from analytics.region_analytics import RegionAnalysis
 from pyspark.sql.functions import col
 from analytics.time_analytics import TimeAnalysis
+import matplotlib.pyplot as plt
 
 spark = SparkManager.create_spark_session()
 raw_data_path = "data/raw/"
@@ -132,4 +133,14 @@ print("\nMax New Cases Day")
 max_cases_df.show(truncate=False)
 print("\nMax New Deaths Day")
 max_deaths_df.show(truncate=False)
-Plotter.plot_peaks(day_wise_df)
+Plotter.plot_peaks(day_wise_df) 
+
+country_latest_df = CovidCleaner.add_severity_category(country_latest_df)
+severity_counts = country_latest_df.groupBy("Severity").count().collect()
+labels = [row["Severity"] for row in severity_counts]
+sizes = [row["count"] for row in severity_counts]
+plt.figure(figsize=(7, 7))
+plt.pie(sizes, labels=labels, autopct="%1.1f%%")
+plt.title("COVID Severity Distribution by Country")
+plt.savefig("output/severity_distribution.png")
+plt.close()

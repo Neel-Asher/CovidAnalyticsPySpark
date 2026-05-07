@@ -70,3 +70,13 @@ class CovidCleaner:
     def get_row_count(df):
 
         return df.count()
+    
+    @staticmethod
+    def add_severity_category(df):
+        return df.withColumn(
+            "Severity",
+            when(col("Confirmed") < 10000, "Low")
+            .when((col("Confirmed") >= 10000) & (col("Confirmed") < 100000), "Medium")
+            .when((col("Confirmed") >= 100000) & (col("Confirmed") < 1000000), "High")
+            .otherwise("Critical")
+        )
