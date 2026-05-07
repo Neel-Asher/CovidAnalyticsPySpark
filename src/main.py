@@ -1,6 +1,7 @@
 from config.spark_session import SparkManager
 from loaders.data_loader import DataLoader
 from transformations.covid_cleaner import CovidCleaner
+from analytics.country_analytics import CountryAnalysis
 
 spark = SparkManager.create_spark_session()
 raw_data_path = "data/raw/"
@@ -41,3 +42,7 @@ full_grouped_df = CovidCleaner.remove_duplicates(full_grouped_df)
 after_count = CovidCleaner.get_row_count(full_grouped_df)
 print("\nRows After Removing Duplicates:", after_count)
 print("\nTotal Duplicate Rows Removed:",before_count - after_count)
+
+top_confirmed_df = (CountryAnalysis.get_top_confirmed_countries(country_latest_df))
+print("\nTop 10 Countries by Confirmed Cases")
+top_confirmed_df.show()
