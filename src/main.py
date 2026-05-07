@@ -10,6 +10,7 @@ from analytics.region_analytics import RegionAnalysis
 from pyspark.sql.functions import col
 from analytics.time_analytics import TimeAnalysis
 import matplotlib.pyplot as plt
+from pipeline.covid_pipeline import CovidPipeline
 
 spark = SparkManager.create_spark_session()
 raw_data_path = "data/raw/"
@@ -144,3 +145,10 @@ plt.pie(sizes, labels=labels, autopct="%1.1f%%")
 plt.title("COVID Severity Distribution by Country")
 plt.savefig("output/severity_distribution.png")
 plt.close()
+
+pipeline = CovidPipeline(
+    spark=spark,
+    data_path="data/raw/"
+)
+results = pipeline.run()
+print("Pipeline executed successfully")
