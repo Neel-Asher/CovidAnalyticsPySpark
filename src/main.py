@@ -2,6 +2,7 @@ from config.spark_session import SparkManager
 from loaders.data_loader import DataLoader
 from transformations.covid_cleaner import CovidCleaner
 from analytics.country_analytics import CountryAnalysis
+from visualization.plotter import Plotter
 
 spark = SparkManager.create_spark_session()
 raw_data_path = "data/raw/"
@@ -44,5 +45,11 @@ print("\nRows After Removing Duplicates:", after_count)
 print("\nTotal Duplicate Rows Removed:",before_count - after_count)
 
 top_confirmed_df = (CountryAnalysis.get_top_confirmed_countries(country_latest_df))
+Plotter.plot_top_confirmed_countries(top_confirmed_df)
 print("\nTop 10 Countries by Confirmed Cases")
 top_confirmed_df.show()
+
+top_death_rate_df = CountryAnalysis.get_top_death_rate_countries(country_latest_df)
+print("\nTop 10 Countries by Death Rate (Deaths / 100 Cases)")
+top_death_rate_df.show()
+Plotter.plot_top_death_rate_countries(top_death_rate_df)    
