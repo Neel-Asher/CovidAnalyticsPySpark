@@ -91,6 +91,7 @@ class Plotter:
 
         print("Saved plot to: output/infection_rate.png")
 
+    @staticmethod
     def plot_statewise_counties(df):
 
         pdf = df.toPandas()
@@ -107,3 +108,28 @@ class Plotter:
         plt.close()
 
         print("Saved plot to: output/usa_state_counties.png")
+    
+    @staticmethod
+    def plot_geo_clusters(df):
+
+        pdf = df.toPandas()
+
+        plt.figure(figsize=(12,6))
+
+        plt.scatter(
+            pdf["Long"],
+            pdf["Lat"],
+            s=pdf["Confirmed"] / 1000,   # scale size
+            alpha=0.5
+        )
+
+        plt.title("COVID-19 Global Case Clusters")
+        plt.xlabel("Longitude")
+        plt.ylabel("Latitude")
+
+        plt.tight_layout()
+
+        plt.savefig("output/geo_clusters.png")
+        plt.close()
+
+        print("Saved plot to: output/geo_clusters.png")

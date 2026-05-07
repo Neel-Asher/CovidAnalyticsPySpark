@@ -103,3 +103,8 @@ print("\nUSA State-wise County Distribution")
 state_df = CountryAnalysis.get_statewise_county_distribution(usa_county_df)
 state_df.show(20, truncate=False)
 Plotter.plot_statewise_counties(state_df)
+
+print("\nGeo Cluster Dataset")
+geo_df = CountryAnalysis.get_geo_cluster_data(covid_clean_df)
+geo_df.show(10)
+Plotter.plot_geo_clusters(geo_df)

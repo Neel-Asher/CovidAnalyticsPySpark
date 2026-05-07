@@ -159,3 +159,17 @@ class CountryAnalysis:
         )
 
         return result
+    
+    @staticmethod
+    def get_geo_cluster_data(df):
+
+        result = (
+            df.select("Lat", "Long", "Confirmed")
+            .filter(
+                col("Lat").isNotNull() &
+                col("Long").isNotNull() &
+                col("Confirmed").isNotNull()
+            )
+        )
+
+        return result
