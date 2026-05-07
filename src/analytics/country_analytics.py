@@ -1,4 +1,4 @@
-from pyspark.sql.functions import col, sum as sum_, lag, when, abs as abs_, desc
+from pyspark.sql.functions import col, sum as sum_, lag, when, abs as abs_, count_distinct as countDistinct
 from pyspark.sql.window import Window
 import matplotlib.pyplot as plt
 import os
@@ -146,3 +146,16 @@ class CountryAnalysis:
         ).limit(limit)
 
         return top
+    
+    @staticmethod
+    def get_statewise_county_distribution(df):
+
+        result = (
+            df.groupBy("Province_State")
+            .agg(
+                countDistinct("Admin2").alias("County_Count")
+            )
+            .orderBy(col("County_Count").desc())
+        )
+
+        return result

@@ -90,3 +90,20 @@ class Plotter:
         plt.close()
 
         print("Saved plot to: output/infection_rate.png")
+
+    def plot_statewise_counties(df):
+
+        pdf = df.toPandas()
+
+        plt.figure(figsize=(14,6))
+        plt.bar(pdf["Province_State"], pdf["County_Count"])
+
+        plt.xticks(rotation=90)
+        plt.title("USA State-wise County Coverage")
+        plt.ylabel("Number of Counties")
+
+        plt.tight_layout()
+        plt.savefig("output/usa_state_counties.png")
+        plt.close()
+
+        print("Saved plot to: output/usa_state_counties.png")

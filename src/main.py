@@ -98,3 +98,8 @@ print("\nTop Countries by Infection Rate")
 infection_df = CountryAnalysis.compute_infection_rate(worldometer_df, 10)
 infection_df.show(truncate=False)
 Plotter.plot_infection_rate(infection_df)
+
+print("\nUSA State-wise County Distribution")
+state_df = CountryAnalysis.get_statewise_county_distribution(usa_county_df)
+state_df.show(20, truncate=False)
+Plotter.plot_statewise_counties(state_df)
