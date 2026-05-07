@@ -151,3 +151,21 @@ class Plotter:
         plt.close()
 
         print(f"Saved plot to: output/{filename}.png")
+
+    @staticmethod
+    def plot_high_risk_countries(df):
+
+        pdf = df.toPandas()
+
+        plt.figure(figsize=(12,6))
+        plt.bar(pdf["Country/Region"], pdf["Active"])
+
+        plt.xticks(rotation=45)
+        plt.title("High Risk Countries (Active Cases > Recovered)")
+        plt.ylabel("Active Cases")
+
+        plt.tight_layout()
+        plt.savefig("output/high_risk_countries.png")
+        plt.close()
+
+        print("Saved plot to: output/high_risk_countries.png")

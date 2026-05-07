@@ -197,3 +197,19 @@ class CountryAnalysis:
         worst = df.orderBy(col("recovery_rate").asc()).limit(top_n)
 
         return best, worst
+    
+    @staticmethod
+    def get_high_risk_countries(df):
+
+        result = df.filter(
+            (col("Active").isNotNull()) &
+            (col("Recovered").isNotNull()) &
+            (col("Active") > col("Recovered"))
+        ).select(
+            "Country/Region",
+            "Active",
+            "Recovered",
+            "Confirmed"
+        ).orderBy(col("Active").desc())
+
+        return result

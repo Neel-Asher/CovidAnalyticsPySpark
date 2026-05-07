@@ -119,3 +119,8 @@ print("\nWorst Recovery Countries")
 worst_df.show(truncate=False)
 Plotter.plot_recovery_rates(best_df, "Top Recovery Countries", "best_recovery")
 Plotter.plot_recovery_rates(worst_df, "Worst Recovery Countries", "worst_recovery")
+
+print("\nHigh Risk Countries (Active > Recovered)")
+high_risk_df = CountryAnalysis.get_high_risk_countries(country_latest_df)
+high_risk_df.show(20, truncate=False)
+Plotter.plot_high_risk_countries(high_risk_df)
