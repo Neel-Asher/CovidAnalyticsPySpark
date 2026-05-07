@@ -169,3 +169,33 @@ class Plotter:
         plt.close()
 
         print("Saved plot to: output/high_risk_countries.png")
+
+    @staticmethod
+    def plot_peaks(df):
+
+        pdf = df.toPandas().sort_values("Date")
+
+        max_cases_date = pdf.loc[pdf["New cases"].idxmax(), "Date"]
+        max_cases_value = pdf["New cases"].max()
+
+        max_deaths_date = pdf.loc[pdf["New deaths"].idxmax(), "Date"]
+        max_deaths_value = pdf["New deaths"].max()
+
+        plt.figure(figsize=(14,6))
+
+        plt.plot(pdf["Date"], pdf["New cases"], label="New Cases")
+        plt.plot(pdf["Date"], pdf["New deaths"], label="New Deaths")
+
+        # Peak markers
+        plt.scatter(max_cases_date, max_cases_value, color="red", s=100, label="Max Cases Peak")
+        plt.scatter(max_deaths_date, max_deaths_value, color="black", s=100, label="Max Deaths Peak")
+
+        plt.xticks(rotation=45)
+        plt.title("Pandemic Peaks Detection")
+        plt.legend()
+
+        plt.tight_layout()
+        plt.savefig("output/pandemic_peaks.png")
+        plt.close()
+
+        print("Saved plot to: output/pandemic_peaks.png")

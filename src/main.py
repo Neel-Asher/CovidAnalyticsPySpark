@@ -8,6 +8,7 @@ from analytics.global_death_trend import GlobalDeathTrend
 from analytics.monthly_analytics import MonthlyAnalysis
 from analytics.region_analytics import RegionAnalysis
 from pyspark.sql.functions import col
+from analytics.time_analytics import TimeAnalysis
 
 spark = SparkManager.create_spark_session()
 raw_data_path = "data/raw/"
@@ -124,3 +125,11 @@ print("\nHigh Risk Countries (Active > Recovered)")
 high_risk_df = CountryAnalysis.get_high_risk_countries(country_latest_df)
 high_risk_df.show(20, truncate=False)
 Plotter.plot_high_risk_countries(high_risk_df)
+
+print("\nPandemic Peaks Analysis")
+max_cases_df, max_deaths_df = TimeAnalysis.get_pandemic_peaks(day_wise_df)
+print("\nMax New Cases Day")
+max_cases_df.show(truncate=False)
+print("\nMax New Deaths Day")
+max_deaths_df.show(truncate=False)
+Plotter.plot_peaks(day_wise_df)
