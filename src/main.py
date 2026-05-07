@@ -93,3 +93,8 @@ comparison_df = CountryAnalysis.compare_latest_sources(country_latest_df,worldom
 comparison_df.show(20)
 threshold_df = comparison_df.filter((col("confirmed_diff") > 10000)|(col("deaths_diff") > 1000)|(col("recovered_diff") > 10000))
 threshold_df.show()
+
+print("\nTop Countries by Infection Rate")
+infection_df = CountryAnalysis.compute_infection_rate(worldometer_df, 10)
+infection_df.show(truncate=False)
+Plotter.plot_infection_rate(infection_df)

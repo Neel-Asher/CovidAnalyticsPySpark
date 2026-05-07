@@ -1,4 +1,4 @@
-from pyspark.sql.functions import col, sum as sum_, lag, when, abs as abs_
+from pyspark.sql.functions import col, sum as sum_, lag, when, abs as abs_, desc
 from pyspark.sql.window import Window
 import matplotlib.pyplot as plt
 import os
@@ -127,3 +127,22 @@ class CountryAnalysis:
         )
 
         return result
+    
+    @staticmethod
+    def compute_infection_rate(df, limit=10):
+
+        df_clean = df.filter(
+            (col("Population").isNotNull()) &
+            (col("Population") > 0)
+        )
+
+        result = df_clean.withColumn(
+            "infection_rate",
+            (col("TotalCases") / col("Population")) * 100
+        )
+
+        top = result.orderBy(
+            col("infection_rate").desc()
+        ).limit(limit)
+
+        return top

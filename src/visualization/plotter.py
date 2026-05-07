@@ -73,3 +73,20 @@ class Plotter:
         plt.legend()
         plt.tight_layout()
         Plotter.save_plot("who_region_metrics.png")
+
+    @staticmethod
+    def plot_infection_rate(df):
+        pdf = df.select("Country/Region", "infection_rate").toPandas()
+
+        plt.figure(figsize=(12,6))
+        plt.bar(pdf["Country/Region"], pdf["infection_rate"])
+
+        plt.xticks(rotation=45)
+        plt.title("Top 10 Countries by Infection Rate")
+        plt.ylabel("Infection Rate (%)")
+
+        plt.tight_layout()
+        plt.savefig("output/infection_rate.png")
+        plt.close()
+
+        print("Saved plot to: output/infection_rate.png")
