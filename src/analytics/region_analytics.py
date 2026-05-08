@@ -4,10 +4,23 @@ import matplotlib.pyplot as plt
 import os
 
 class RegionAnalysis:
+    """Provides analytical tools for ranking and visualizing COVID-19 data across WHO regions."""
 
     @staticmethod
     def get_top5_by_region(country_latest_df):
+        """
+        Ranks and retrieves the top 5 countries with the most confirmed cases within each WHO Region.
 
+        Uses a Window function to partition the data by region and apply a dense rank 
+        based on confirmed case counts in descending order.
+
+        Args:
+            country_latest_df (DataFrame): Spark DataFrame containing 'WHO Region', 
+                'Country/Region', and 'Confirmed' columns.
+
+        Returns:
+            DataFrame: A Spark DataFrame containing the top 5 ranked countries for every region.
+        """
         window_spec = Window.partitionBy("WHO Region") \
                             .orderBy(col("Confirmed").desc())
 
@@ -23,11 +36,22 @@ class RegionAnalysis:
 
     @staticmethod
     def plot_top5_by_region(df):
+        """
+        Generates and saves a bar chart comparing the top 5 countries across all WHO Regions.
 
+        The chart groups bars by region to provide a clear comparative view of regional 
+        hotspots. This method collects data to the driver for plotting.
+
+        Args:
+            df (DataFrame): Spark DataFrame containing 'WHO Region', 'Country/Region', 
+                and 'Confirmed' columns.
+
+        Returns:
+            None: Saves the plot as a PNG to 'output/top5_countries_by_region.png'.
+        """
         data = df.collect()
 
         os.makedirs("output", exist_ok=True)
-
         regions = list(set([row["WHO Region"] for row in data]))
 
         plt.figure(figsize=(14, 7))
@@ -43,7 +67,6 @@ class RegionAnalysis:
         plt.xlabel("Country (Grouped by Region)")
         plt.ylabel("Confirmed Cases")
         plt.xticks(rotation=45)
-
         plt.tight_layout()
 
         output_path = "output/top5_countries_by_region.png"

@@ -1,6 +1,7 @@
 from config.spark_session import SparkManager
 from loaders.data_loader import DataLoader
 from transformations.covid_cleaner import CovidCleaner
+from transformations.cleaner import Cleaner
 from analytics.country_analytics import CountryAnalysis
 from visualization.plotter import Plotter
 from analytics.global_analytics import GlobalAnalysis
